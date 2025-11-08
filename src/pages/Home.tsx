@@ -5,6 +5,7 @@ import { useAuth } from "react-oidc-context";
 import { fromCognitoIdentityPool } from "@aws-sdk/credential-providers";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/datepicker";
 
 const SQS_QUEUE_URL =
   "https://sqs.us-east-2.amazonaws.com/674010401876/TaskPrintingQueue";
@@ -28,6 +29,7 @@ function Home() {
 
   const [taskDescription, setTaskDescription] = useState("");
   const [taskTitle, setTaskTitle] = useState("");
+  const [taskDueDate, setTaskDueDate] = useState<Date | undefined>(undefined);
 
   const signOutRedirect = async () => {
     // Clear local auth state first
@@ -46,6 +48,10 @@ function Home() {
   };
 
   const sendSqsMessage = async () => {
+    const DueDate = taskDueDate
+      ? { DataType: "String", StringValue: taskDueDate?.toLocaleDateString() }
+      : null;
+
     const command = new SendMessageCommand({
       QueueUrl: SQS_QUEUE_URL,
       DelaySeconds: 0,
@@ -54,8 +60,13 @@ function Home() {
           DataType: "String",
           StringValue: taskTitle,
         },
+        CreatedDate: {
+          DataType: "String",
+          StringValue: new Date().toLocaleTimeString(),
+        },
+        DueDate: DueDate!,
       },
-      MessageBody: taskDescription,
+      MessageBody: taskDescription || "No description provided",
     });
 
     const response = await client.send(command);
@@ -66,6 +77,7 @@ function Home() {
     sendSqsMessage();
     setTaskDescription("");
     setTaskTitle("");
+    setTaskDueDate(undefined);
   };
 
   return (
@@ -76,6 +88,10 @@ function Home() {
       >
         Sign out
       </Button>
+      <h1 className="max-w-sm text-2xl font-bold mb-2">Task Management</h1>
+      <div className="flex w-full max-w-sm items-center gap-2 mb-2">
+        <DatePicker date={taskDueDate} setDate={setTaskDueDate} />
+      </div>
       <div className="flex w-full max-w-sm items-center gap-2">
         <Input
           placeholder="Task Title..."

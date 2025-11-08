@@ -1,10 +1,10 @@
-import { useAuth } from "react-oidc-context";
+import { useAutoSignin } from "react-oidc-context";
 import "./App.css";
 import Home from "./pages/Home";
 import { Button } from "./components/ui/button";
 
 function App() {
-  const auth = useAuth();
+  const auth = useAutoSignin();
   const signOutRedirect = () => {
     const clientId = "6fbkrdss49n7526s5sbmlvrhle";
     const logoutUri =
@@ -35,7 +35,6 @@ function App() {
 
   return (
     <div>
-      <Button onClick={() => auth.signinRedirect()}>Sign in</Button>
       <Button onClick={() => signOutRedirect()}>Sign out</Button>
     </div>
   );
