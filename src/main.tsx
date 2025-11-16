@@ -18,6 +18,7 @@ const cognitoAuthConfig = {
   response_type: "code",
   scope: "phone openid email",
   onSigninCallback,
+  automaticSilentRenew: true,
   userStore: new WebStorageStateStore({ store: window.localStorage }),
 };
 

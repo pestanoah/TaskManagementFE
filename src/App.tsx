@@ -1,10 +1,13 @@
-import { useAutoSignin } from "react-oidc-context";
+import { useAuth } from "react-oidc-context";
 import "./App.css";
 import Home from "./pages/Home";
 import { Button } from "./components/ui/button";
+import { useEffect } from "react";
+import { ButtonGroup } from "./components/ui/button-group";
+import { ThemeProvider } from "./components/theme-provider";
 
 function App() {
-  const auth = useAutoSignin();
+  const auth = useAuth();
   const signOutRedirect = () => {
     const clientId = "6fbkrdss49n7526s5sbmlvrhle";
     const logoutUri =
@@ -17,6 +20,12 @@ function App() {
     )}`;
   };
 
+  useEffect(() => {
+    auth.signinSilent().catch((error) => {
+      console.error("Silent sign-in error:", error);
+    });
+  }, []);
+
   if (auth.isLoading) {
     return <div>Loading...</div>;
   }
@@ -28,15 +37,30 @@ function App() {
   if (auth.isAuthenticated) {
     return (
       <>
-        <Home />
+        <ThemeProvider defaultTheme="dark" storageKey="task-ui-theme">
+          <Home />
+        </ThemeProvider>
       </>
     );
   }
 
   return (
-    <div>
-      <Button onClick={() => signOutRedirect()}>Sign out</Button>
-    </div>
+    <ThemeProvider defaultTheme="dark" storageKey="task-ui-theme">
+      <div className="flex flex-col items-start gap-8">
+        <ButtonGroup>
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={() => auth.signinRedirect()}
+          >
+            Sign in
+          </Button>
+          <Button size="lg" variant="outline" onClick={() => signOutRedirect()}>
+            Sign out
+          </Button>
+        </ButtonGroup>
+      </div>
+    </ThemeProvider>
   );
 }
 

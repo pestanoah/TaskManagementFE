@@ -62,7 +62,7 @@ function Home() {
         },
         CreatedDate: {
           DataType: "String",
-          StringValue: new Date().toLocaleTimeString(),
+          StringValue: new Date().toLocaleString(),
         },
         DueDate: DueDate!,
       },
